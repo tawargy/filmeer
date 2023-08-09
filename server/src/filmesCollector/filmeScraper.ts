@@ -10,17 +10,23 @@ const filmeScraper = async () => {
   })
   const page = await browser.newPage()
   await page.goto(url)
+  // const html= await page.content()
+  //console.log(html)
+
+
+
 
   const filmesList: Filme[] = []
 
   const originalNames = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('a.ipc-title__text')!).map((e) => {
+    Array.from(document.querySelectorAll('li a.ipc-title-link-wrapper h3')!).map((e) => {
       let text = e.textContent?.trim() || ''
       const startIndex = text.indexOf('.') + 2
       const result = text.substring(startIndex)
       return result
     }),
   )
+
   const posters = await page.evaluate(() =>
     Array.from(
       document.querySelectorAll('.ipc-poster__poster-image .ipc-image')!,
@@ -64,7 +70,6 @@ const filmeScraper = async () => {
   }
 
   await browser.close()
-
   return filmesList
 }
 export default filmeScraper
