@@ -44,6 +44,7 @@ export class SqlDataStore implements Datastore {
   async getUserByUsername(userName: string): Promise<User | undefined> {
     return await this.db.get('SELECT * FROM users WHERE userName=?', userName);
   }
+
   // Filme======
   async allFilmesList250(): Promise<Filme[]> {
     return await this.db.all('SELECT * FROM filmes  ');

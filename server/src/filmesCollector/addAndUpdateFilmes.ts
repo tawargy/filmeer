@@ -63,20 +63,20 @@ const lagacyFilme = async (
 const addAndUpdateFilmes = async () => {
   const currentFilmesList = await db.allFilmesList250()
   const newFilmesList = await filmeScraper()
-
   if (newFilmesList) {
     if (currentFilmesList.length === 0) {
       for (let filme of newFilmesList) {
-     
         await db.cerateFilme(filme)
       }
-     
+
       console.log('Created filmes list')
     } else {
       findFilmeByNameAndUpdate(currentFilmesList, newFilmesList)
       findFilmeByNameAndCreate(currentFilmesList, newFilmesList)
       lagacyFilme(currentFilmesList, newFilmesList)
     }
+  } else {
+    console.log('No Data')
   }
 }
 export default addAndUpdateFilmes
