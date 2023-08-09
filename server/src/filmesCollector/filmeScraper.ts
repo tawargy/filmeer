@@ -14,7 +14,7 @@ const filmeScraper = async () => {
   const filmesList: Filme[] = []
 
   const originalNames = await page.evaluate(() =>
-    Array.from(document.querySelectorAll('h3.ipc-title__text')!).map((e) => {
+    Array.from(document.querySelectorAll('a.ipc-title__text')!).map((e) => {
       let text = e.textContent?.trim() || ''
       const startIndex = text.indexOf('.') + 2
       const result = text.substring(startIndex)
@@ -64,6 +64,7 @@ const filmeScraper = async () => {
   }
 
   await browser.close()
+
   return filmesList
 }
 export default filmeScraper
