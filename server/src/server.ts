@@ -1,16 +1,10 @@
-import app from './app';
-import {initDb} from './datastore'
-import addAndUpdateFilmes from './filmesCollector/addAndUpdateFilmes'
+import app from "./app";
+import { initDb } from "./datastore";
+(async () => {
+  await initDb();
 
-
-
-(async()=>{
-await initDb();
-
-const PORT:number=5000 
-app.listen(PORT,()=>{
-  console.log('server is running')
-})
-await addAndUpdateFilmes()
-})()
-
+  const PORT: number = 5000;
+  app.listen(PORT, () => {
+    console.log("server is running");
+  });
+})();

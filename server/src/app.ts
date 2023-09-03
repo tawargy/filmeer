@@ -3,7 +3,7 @@ import {db} from './datastore'
 const app: express.Application = express()
 
 app.get('/filmes', async (req, res) => {
-  const filmes = await db.filmesList250()
+  const filmes = await db.allFilmesList250()
   filmes.forEach((filme: any) => {
     filme.originalName = undefined!
   })
