@@ -32,7 +32,7 @@ const findFilmeByNameAndCreate = async (
     return
   } else {
     for (let filme of results) {
-      await db.cerateFilme(filme)
+      await db.createFilme(filme)
       console.log('created new filme list250', filme)
     }
   }
@@ -66,7 +66,7 @@ const addAndUpdateFilmes = async () => {
   if (newFilmesList) {
     if (currentFilmesList.length === 0) {
       for (let filme of newFilmesList) {
-        await db.cerateFilme(filme)
+        await db.createFilme(filme)
       }
 
       console.log('Created filmes list')

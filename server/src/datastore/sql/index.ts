@@ -1,12 +1,16 @@
-import path from 'path';
-import { open, Database } from 'sqlite';
-import sqlite3 from 'sqlite3';
+import path from 'path'
+import {open, Database} from 'sqlite'
+import sqlite3 from 'sqlite3'
+import {Filmes} from './filmes'
+import {Users} from './user'
+import {WatcheLib} from './watchelib'
+import {Filme, User, Mywatched, Mylibrary} from '../../types'
 
-import { Datastore } from '..';
-import { Filme, User, Mywatched, Mylibrary } from '../../types';
-
-export class SqlDataStore implements Datastore {
-  private db!: Database<sqlite3.Database, sqlite3.Statement>;
+export class SqlDataStore {
+  private db!: Database<sqlite3.Database, sqlite3.Statement>
+  private filmeRepo!: Filmes
+  private userRepo!: Users
+  private watchelibRepo!: WatcheLib
 
   public async openDb() {
     //open the database
@@ -14,158 +18,87 @@ export class SqlDataStore implements Datastore {
       filename: path.join(__dirname, 'filmer.sqlite'),
       //filename: '/tmp/database.db',
       driver: sqlite3.Database,
-    });
-    this.db.run('PRAGMA foreign_keys=ON;');
+    })
+    this.db.run('PRAGMA foreign_keys=ON;')
     await this.db.migrate({
       migrationsPath: path.join(__dirname, 'migrations'),
-    });
-
-    return this;
+    })
+    this.filmeRepo = new Filmes(this.db)
+    this.userRepo = new Users(this.db)
+    this.watchelibRepo = new WatcheLib(this.db)
+    return this
   }
   // User========
-  async createUser(user: User): Promise<void> {
-    await this.db.run(
-      'INSERT INTO users (id,firstName,lastName,userName,email,password,rouls) VALUES (?,?,?,?,?,?,?)',
-      user.id,
-      user.firstName,
-      user.lastName,
-      user.userName,
-      user.email,
-      user.password,
-      user.rouls
-    );
+  createUser(user: User): Promise<void> {
+    return this.userRepo._createUser(user)
   }
-  async getUserById(id: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE id=?', id);
+  getUserById(id: string): Promise<User | undefined> {
+    return this.userRepo._getUserById(id)
   }
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE email=?', email);
+  getUserByEmail(email: string): Promise<User | undefined> {
+    return this.userRepo._getUserByEmail(email)
   }
-  async getUserByUsername(userName: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE userName=?', userName);
+  getUserByUsername(userName: string): Promise<User | undefined> {
+    return this.userRepo._getUserByUsername(userName)
   }
 
-  // Filme======
-  async allFilmesList250(): Promise<Filme[]> {
-    return await this.db.all('SELECT * FROM filmes  ');
+  // filmes========
+
+  allFilmesList250(): Promise<Filme[]> {
+    return this.filmeRepo._allFilmesList250()
   }
-  async filmesList250(): Promise<Filme[]> {
-    return await this.db.all(
-      'SELECT * FROM filmes WHERE list250 > 0 AND list250 <= 250 ORDER BY list250 ASC'
-    );
+  filmesList250(): Promise<Filme[]> {
+    return this.filmeRepo._filmesList250()
+  }
+  createFilme(filme: Filme): Promise<void> {
+    return this.filmeRepo._cerateFilme(filme)
   }
 
-  async cerateFilme(filme: Filme): Promise<void> {
-    console.log(filme)
-    await this.db.run(
-      'INSERT INTO filmes (id,name,originalName,year,poster,url,imdbRating,list250) VALUES (?,?,?,?,?,?,?,?)',
-      filme.id,
-      filme.name,
-      filme.originalName,
-      filme.year,
-      filme.poster,
-      filme.url,
-      filme.imdbRating,
-      filme.list250
-    );
+  getFilmeById(id: string): Promise<Filme | undefined> {
+    return this.filmeRepo._getFilmeById(id)
   }
-  async getFilmeById(id: string): Promise<Filme | undefined> {
-    return await this.db.get('SELECT * FROM filmes WHERE id=?', id);
+  getFilmeByOrignalName(originalName: string): Promise<Filme | undefined> {
+    return this.filmeRepo._getFilmeByOrignalName(originalName)
   }
-  async getFilmeByOrignalName(
-    originalName: string
-  ): Promise<Filme | undefined> {
-    const filmes = await this.db.get(
-      'SELECT * FROM filmes WHERE originalname=? ',
-      originalName
-    );
-    return filmes;
-  }
-  async updateFilmeList250(
+  updateFilmeList250(
     originalName: string,
-    list250: number | undefined
+    list250: number | undefined,
   ): Promise<void> {
-    let rating;
-    if (!list250) {
-      rating = null;
-    } else {
-      rating = list250;
-    }
-    await this.db.run(
-      'UPDATE filmes SET list250=? WHERE originalName=? ',
-      rating,
-      originalName
-    );
+    return this.filmeRepo._updateFilmeList250(originalName, list250)
   }
-  async updateFilme(filme: Filme): Promise<void> {
-    await this.db.run(
-      'UPDATE filmes SET name=?,originalName=?,poster=?,year=?,url=?,imdbRating=? WHERE id=? ',
-      filme.name,
-      filme.originalName,
-      filme.poster,
-      filme.year,
-      filme.url,
-      filme.imdbRating,
-     filme.id
-    );
+  updateFilme(filme: Filme): Promise<void> {
+    return this.filmeRepo._updateFilme(filme)
+  }
+  deleteFilme(id: string): Promise<void> {
+    return this.filmeRepo._deleteFilme(id)
   }
 
-  async deleteFilme(id: string): Promise<void> {
-      await this.db.run('DELETE FROM filmes WHERE id=?',id)
+  //watchelib===========
+  addToWatchedList(userId: string, filmeId: string): Promise<void> {
+    return this.watchelibRepo._addToWatchedList(userId, filmeId)
   }
-
-  async addToWatchedList(userId: string, filmeId: string): Promise<void> {
-    await this.db.run(
-      'INSERT INTO mywatched (userId,filmeId) VALUES (?,?)',
-      userId,
-      filmeId
-    );
+  removeFromWatchedList(userId: string, filmeId: string): Promise<void> {
+    return this.watchelibRepo._removeFromWatchedList(userId, filmeId)
   }
-  async removeFromWatchedList(userId: string, filmeId: string): Promise<void> {
-    await this.db.run(
-      'DELETE FROM mywatched WHERE userId=? AND filmeId=?',
-      userId,
-      filmeId
-    );
+  getWatchedUserList(userId: string): Promise<Mywatched[]> {
+    return this.watchelibRepo._getWatchedUserList(userId)
   }
-  async getWatchedUserList(userId: string): Promise<Mywatched[]> {
-    return await this.db.all('SELECT * FROM mywatched WHERE userId=?', userId);
+  getWatchedUserFilme(userId: string, filmeId: string) {
+    return this.watchelibRepo._getWatchedUserFilme(userId, filmeId)
   }
-  async getWatchedUserFilme(
+  addToLibrary(userId: string, filmeId: string): Promise<void> {
+    return this.watchelibRepo._addToLibrary(userId, filmeId)
+  }
+  removeFromLibrary(userId: string, filmeId: string): Promise<void> {
+    return this.watchelibRepo._removeFromLibrary(userId, filmeId)
+  }
+  getLibraryUserList(userId: string): Promise<Mylibrary[]> {
+    return this.watchelibRepo._getLibraryUserList(userId)
+  }
+  getLibraryUserFilme(
     userId: string,
-    filmeId: string
-  ): Promise<Mywatched | undefined> {
-    return await this.db.get(
-      'SELECT * FROM mywatched WHERE userId=? AND filmeId=?',
-      userId,
-      filmeId
-    );
-  }
-  async addToLibrary(userId: string, filmeId: string): Promise<void> {
-    await this.db.run(
-      'INSERT INTO mylibrary (userId,filmeId) VALUES (?,?)',
-      userId,
-      filmeId
-    );
-  }
-  async removeFromLibrary(userId: string, filmeId: string): Promise<void> {
-    await this.db.run(
-      'DELETE FROM mylibrary WHERE userId=? AND filmeId=?',
-      userId,
-      filmeId
-    );
-  }
-  async getLibraryUserList(userId: string): Promise<Mylibrary[]> {
-    return await this.db.all('SELECT * FROM mylibrary WHERE userId=?', userId);
-  }
-  async getLibraryUserFilme(
-    userId: string,
-    filmeId: string
+    filmeId: string,
   ): Promise<Mylibrary | undefined> {
-    return await this.db.get(
-      'SELECT * FROM mylibrary WHERE userId=? AND filmeId=?',
-      userId,
-      filmeId
-    );
+    return this.watchelibRepo._getLibraryUserFilme(userId, filmeId)
   }
 }
