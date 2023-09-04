@@ -1,14 +1,15 @@
 import express from 'express'
-import {db} from './datastore'
+import asyncHandler from 'express-async-handler'
+import {
+  signupHandler,
+  signinHandler,
+} from './handlers/usersHandler'
+
 const app: express.Application = express()
+app.use(express.json())
 
-app.get('/filmes', async (req, res) => {
-  const filmes = await db.allFilmesList250()
-  filmes.forEach((filme: any) => {
-    filme.originalName = undefined!
-  })
-  res.status(200).send({data: filmes})
-
-})
+// Users
+app.post('/users/signup', asyncHandler(signupHandler))
+app.post('/users/signin', asyncHandler(signinHandler))
 
 export default app
