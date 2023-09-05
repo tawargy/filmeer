@@ -1,12 +1,12 @@
-import {User} from '../../types'
-import {Database} from 'sqlite'
-import sqlite3 from 'sqlite3'
+import { User } from '../../types';
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
 
 interface UserDao {
-  _createUser(user: User): Promise<void>
-  _getUserById(id: string): Promise<User | undefined>
-  _getUserByEmail(email: string): Promise<User | undefined>
-  _getUserByUsername(username: string): Promise<User | undefined>
+  _createUser(user: User): Promise<void>;
+  _getUserById(id: string): Promise<User | undefined>;
+  _getUserByEmail(email: string): Promise<User | undefined>;
+  _getUserByUsername(username: string): Promise<User | undefined>;
 }
 
 export class Users implements UserDao {
@@ -21,16 +21,16 @@ export class Users implements UserDao {
       user.userName,
       user.email,
       user.password,
-      user.rouls,
-    )
+      user.rouls
+    );
   }
   async _getUserById(id: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE id=?', id)
+    return await this.db.get('SELECT * FROM users WHERE id=?', id);
   }
   async _getUserByEmail(email: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE email=?', email)
+    return await this.db.get('SELECT * FROM users WHERE email=?', email);
   }
   async _getUserByUsername(userName: string): Promise<User | undefined> {
-    return await this.db.get('SELECT * FROM users WHERE userName=?', userName)
+    return await this.db.get('SELECT * FROM users WHERE userName=?', userName);
   }
 }

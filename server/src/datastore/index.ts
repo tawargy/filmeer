@@ -1,7 +1,7 @@
-import {SqlDataStore} from './sql'
+import { SqlDataStore } from './sql';
 
-export let db: SqlDataStore
+export let db: SqlDataStore;
 
 export async function initDb() {
-  db = await new SqlDataStore().openDb()
+  db = await new SqlDataStore().openDb();
 }

@@ -1,10 +1,10 @@
-import path from "path";
-import { open, Database } from "sqlite";
-import sqlite3 from "sqlite3";
-import { Filmes } from "./filmes";
-import { Users } from "./user";
-import { WatcheLib } from "./watchelib";
-import { Filme, User, Mywatched, Mylibrary } from "../../types";
+import path from 'path';
+import { open, Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
+import { Filmes } from './filmes';
+import { Users } from './user';
+import { WatcheLib } from './watchelib';
+import { Filme, User, Mywatched, Mylibrary } from '../../types';
 
 export class SqlDataStore {
   private db!: Database<sqlite3.Database, sqlite3.Statement>;
@@ -15,13 +15,13 @@ export class SqlDataStore {
   public async openDb() {
     //open the database
     this.db = await open({
-      filename: path.join(__dirname, "filmer.sqlite"),
+      filename: path.join(__dirname, 'filmer.sqlite'),
       //filename: '/tmp/database.db',
       driver: sqlite3.Database,
     });
-    this.db.run("PRAGMA foreign_keys=ON;");
+    this.db.run('PRAGMA foreign_keys=ON;');
     await this.db.migrate({
-      migrationsPath: path.join(__dirname, "migrations"),
+      migrationsPath: path.join(__dirname, 'migrations'),
     });
     this.filmeRepo = new Filmes(this.db);
     this.userRepo = new Users(this.db);
